@@ -1,1 +1,20 @@
-<Solution />
+<Solution>
+  <Folder Name="/benchmarks/" />
+  <Folder Name="/platforms/">
+    <Project Path="XenoUI.Android/XenoUI.Android.csproj">
+      <Deploy />
+    </Project>
+    <Project Path="XenoUI.Ios/XenoUI.Ios.csproj">
+      <Deploy />
+    </Project>
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="XenoUI.Declarative/XenoUI.Declarative.csproj" />
+    <Project Path="XenoUI.Engine/XenoUI.Engine.csproj" />
+    <Project Path="XenoUI.Graphics/XenoUI.Graphics.csproj" />
+    <Project Path="XenoUI.Hardware/XenoUI.Hardware.csproj" />
+    <Project Path="XenoUI.SourceGen/XenoUI.SourceGen.csproj" />
+    <Project Path="XenoUI.Vault/XenoUI.Vault.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+</Solution>
