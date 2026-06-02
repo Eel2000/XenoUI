@@ -3,7 +3,6 @@
   <Folder Name="/samples/" />
   <Folder Name="/src/">
     <Project Path="XenoUI.Core/XenoUI.Core.csproj" Id="b7c0512e-a306-427a-a784-5a9b71aed7cc" />
-    <Project Path="XenoUI.Sdk/XenoUI.Sdk.csproj" Id="6ad64bdf-d823-40fe-b8fc-0aed622789f2" />
     <Project Path="XenoUI.StandardLibrary/XenoUI.StandardLibrary.csproj" Id="0e3691da-739b-41c3-825e-c5ad964a26c2" />
   </Folder>
   <Folder Name="/src/platforms/">
@@ -13,6 +12,9 @@
     <Project Path="XenoUI.Ios/XenoUI.Ios.csproj">
       <Deploy />
     </Project>
+  </Folder>
+  <Folder Name="/src/Sdk/">
+    <Project Path="XenoUI.BuildTasks/XenoUI.BuildTasks.csproj" Id="1261eac6-a2df-442f-b8f4-3b2360c37b96" />
   </Folder>
   <Folder Name="/tests/" />
 </Solution>
