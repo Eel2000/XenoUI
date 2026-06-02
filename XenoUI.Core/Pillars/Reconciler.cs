@@ -1,5 +1,10 @@
 namespace XenoUI.Core.Pillars;
 
+/// <summary>
+/// The Reconciler class is responsible for maintaining a persistent registry of visual objects,
+/// synchronizing their state with data received from a low-level BlueprintStream,
+/// and ensuring proper lifecycle management of visuals.
+/// </summary>
 public class Reconciler
 {
     // The Registry: Maps a stable Blueprint ID to a persistent Visual Class instance.
