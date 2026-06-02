@@ -13,11 +13,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(MSBuildThisFileDirectory)..\src\XenoUI.Core\XenoUI.Core.csproj" />
-    <ProjectReference Include="$(MSBuildThisFileDirectory)..\src\XenoUI.StandardLibrary\XenoUI.StandardLibrary.csproj" />
-    
-    <ProjectReference Condition="'$(TargetPlatformIdentifier)' == 'android' or '$(TargetPlatformIdentifier)' == 'ios'" 
-                      Include="$(MSBuildThisFileDirectory)..\src\XenoUI.Platforms\XenoUI.Platforms.csproj" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\src\XenoUI.Core.csproj" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\src\XenoUI.StandardLibrary.csproj" />
+
+    <ProjectReference Condition="'$(TargetPlatformIdentifier)' == 'android'"
+                      Include="$(MSBuildThisFileDirectory)..\XenoUI.Platforms\XenoUI.Android\XenoUI.Android.csproj" />
+    <ProjectReference Condition="'$(TargetPlatformIdentifier)' == 'ios'"
+                      Include="$(MSBuildThisFileDirectory)..\XenoUI.Platforms\XenoUI.Ios\XenoUI.Ios.csproj" />
   </ItemGroup>
 
   <ItemGroup>
