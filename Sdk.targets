@@ -1,0 +1,15 @@
+﻿<Project>
+	<UsingTask TaskName="GenerateManifests" AssemblyFile="$(XenoSdkTasksPath)XenoUI.BuildTasks.dll" />
+
+	<Target Name="GenerateXenoManifests" BeforeTargets="BeforeBuild">
+		<GenerateManifests
+			AppId="$(XenoAppId)"
+			AppName="$(XenoAppName)"
+			Permissions="@(XenoPermission)"
+			IntermediatePath="$(IntermediateOutputPath)" />
+	</Target>
+
+	<ItemGroup>
+		<Compile Remove="Platforms\**" />
+	</ItemGroup>
+</Project>

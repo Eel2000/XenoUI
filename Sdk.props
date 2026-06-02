@@ -1,0 +1,33 @@
+﻿<Project>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    
+    <XenoUIProject>true</XenoUIProject>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <XenoSdkTasksPath Condition="'$(XenoSdkTasksPath)' == ''">$(MSBuildThisFileDirectory)..\tasks\</XenoSdkTasksPath>
+    <XenoGenPath>$(IntermediateOutputPath)xeno_gen\</XenoGenPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\src\XenoUI.Core\XenoUI.Core.csproj" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\src\XenoUI.StandardLibrary\XenoUI.StandardLibrary.csproj" />
+    
+    <ProjectReference Condition="'$(TargetPlatformIdentifier)' == 'android' or '$(TargetPlatformIdentifier)' == 'ios'" 
+                      Include="$(MSBuildThisFileDirectory)..\src\XenoUI.Platforms\XenoUI.Platforms.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="XenoUI" />
+    <Using Include="XenoUI.Styles" />
+    <Using Include="XenoUI.Data" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <XenoAppId Condition="'$(XenoAppId)' == ''">com.xenoui.unnamed</XenoAppId>
+    <XenoAppName Condition="'$(XenoAppName)' == ''">$(MSBuildProjectName)</XenoAppName>
+  </PropertyGroup>
+</Project>
