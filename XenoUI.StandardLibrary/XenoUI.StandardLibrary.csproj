@@ -6,4 +6,11 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Controls\" />
+    <Folder Include="Overlays\" />
+    <Folder Include="Shell\" />
+    <Folder Include="Theming\" />
+  </ItemGroup>
+
 </Project>
