@@ -1,20 +1,18 @@
 <Solution>
   <Folder Name="/benchmarks/" />
-  <Folder Name="/platforms/">
+  <Folder Name="/samples/" />
+  <Folder Name="/src/">
+    <Project Path="XenoUI.Core/XenoUI.Core.csproj" Id="b7c0512e-a306-427a-a784-5a9b71aed7cc" />
+    <Project Path="XenoUI.Sdk/XenoUI.Sdk.csproj" Id="6ad64bdf-d823-40fe-b8fc-0aed622789f2" />
+    <Project Path="XenoUI.StandardLibrary/XenoUI.StandardLibrary.csproj" Id="0e3691da-739b-41c3-825e-c5ad964a26c2" />
+  </Folder>
+  <Folder Name="/src/platforms/">
     <Project Path="XenoUI.Android/XenoUI.Android.csproj">
       <Deploy />
     </Project>
     <Project Path="XenoUI.Ios/XenoUI.Ios.csproj">
       <Deploy />
     </Project>
-  </Folder>
-  <Folder Name="/src/">
-    <Project Path="XenoUI.Declarative/XenoUI.Declarative.csproj" />
-    <Project Path="XenoUI.Engine/XenoUI.Engine.csproj" />
-    <Project Path="XenoUI.Graphics/XenoUI.Graphics.csproj" />
-    <Project Path="XenoUI.Hardware/XenoUI.Hardware.csproj" />
-    <Project Path="XenoUI.SourceGen/XenoUI.SourceGen.csproj" />
-    <Project Path="XenoUI.Vault/XenoUI.Vault.csproj" />
   </Folder>
   <Folder Name="/tests/" />
 </Solution>
