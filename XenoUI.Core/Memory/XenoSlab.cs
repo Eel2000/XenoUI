@@ -25,6 +25,19 @@ public unsafe class XenoSlab<T> : IDisposable where T : unmanaged
     }
 
     /// <summary>
+    /// Gets the total number of elements currently stored in the slab.
+    /// </summary>
+    /// <value>
+    /// An integer representing the count of elements in the slab.
+    /// </value>
+    /// <remarks>
+    /// The value of <c>Count</c> reflects the current number of elements stored,
+    /// which is updated as elements are added or removed. It does not represent
+    /// the total capacity of the slab.
+    /// </remarks>
+    public int Count => _count;
+
+    /// <summary>
     /// Retrieves a reference to the element at the specified index within the buffer.
     /// </summary>
     /// <param name="index">

@@ -10,8 +10,6 @@
   <ItemGroup>
     <Folder Include="Animations\" />
     <Folder Include="Compisitor\" />
-    <Folder Include="Doddb\" />
-    <Folder Include="Pillars\" />
   </ItemGroup>
 
   <ItemGroup>
