@@ -59,7 +59,14 @@ public class XenoUICacheMemory : IDisposable
 
         //keep the slabs aligned
         Transforms.Push(default);
-        
+
+        VisualComponent defaultVisual = new VisualComponent
+        {
+           Color = style.BackgroundColor,
+        };
+
+        Visuals.Push(defaultVisual);
+
         return id;
     }
 

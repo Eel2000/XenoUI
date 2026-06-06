@@ -14,4 +14,10 @@
     -->
     <TrimMode>full</TrimMode>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp.Views" Version="3.119.4" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\XenoUI.Core\XenoUI.Core.csproj" />
+  </ItemGroup>
 </Project>

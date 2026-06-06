@@ -114,11 +114,15 @@ public class LayoutSystem
             var node = _nodes[index];
             
             ref var transform = ref uiCacheMemory.Transforms.Get(index);
-            
+
+            var width = YGNodeStyleAPI.YGNodeStyleGetHeight(node);
+            var height = YGNodeStyleAPI.YGNodeStyleGetWidth(node);
+
+            transform.Width = width.Value;
+            transform.Height = height.Value;
+
             transform.X = YGNodeLayoutAPI.YGNodeLayoutGetLeft(node);
             transform.Y = YGNodeLayoutAPI.YGNodeLayoutGetTop(node);
-            transform.Width = YGNodeLayoutAPI.YGNodeLayoutGetWidth(node);
-            transform.Height = YGNodeLayoutAPI.YGNodeLayoutGetHeight(node);
         }
     }
 }
