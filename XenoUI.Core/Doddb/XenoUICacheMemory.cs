@@ -26,6 +26,9 @@ public class XenoUICacheMemory : IDisposable
     /// </summary>
     public readonly XenoSlab<TransformComponent> Transforms;
 
+
+    public readonly XenoSlab<VisualComponent> Visuals;
+
     /// <summary>
     /// Gets the total number of entities currently managed within the <see cref="Styles"/> slab allocator.
     /// Provides a count of <see cref="StyleComponent"/> structures being stored in contiguous memory.
@@ -35,6 +38,7 @@ public class XenoUICacheMemory : IDisposable
     public XenoUICacheMemory(int initialCapacity = 1024)
     {
         Styles = new XenoSlab<StyleComponent>(initialCapacity);
+        Visuals = new XenoSlab<VisualComponent>(initialCapacity);
         Transforms = new XenoSlab<TransformComponent>(initialCapacity);
     }
 
@@ -54,8 +58,22 @@ public class XenoUICacheMemory : IDisposable
         int id = Styles.Push(style);
 
         //keep the slabs aligned
-        Transforms.Push(new TransformComponent());
+        Transforms.Push(default);
         
+        return id;
+    }
+
+    public int CreateEntity(StyleComponent style, VisualComponent visual)
+    {
+        //Create a new entity in the UI cache memory by adding a style component to the
+        int id = Styles.Push(style);
+
+        //keep the slabs aligned
+        Transforms.Push(default);
+
+        // Add a corresponding visual component to the visuals slab for the new entity.
+        Visuals.Push(visual);
+
         return id;
     }
 
@@ -63,5 +81,6 @@ public class XenoUICacheMemory : IDisposable
     {
         Styles.Dispose();
         Transforms.Dispose();
+        Visuals.Dispose();
     }
 }
