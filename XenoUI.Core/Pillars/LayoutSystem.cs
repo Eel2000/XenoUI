@@ -114,7 +114,7 @@ public class LayoutSystem
             var node = _nodes[index];
             
             ref var transform = ref uiCacheMemory.Transforms.Get(index);
-
+             
             var width = YGNodeStyleAPI.YGNodeStyleGetHeight(node);
             var height = YGNodeStyleAPI.YGNodeStyleGetWidth(node);
 

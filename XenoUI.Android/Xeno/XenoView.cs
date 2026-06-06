@@ -15,7 +15,7 @@ namespace XenoUI.Android.Xeno
             _componentEngine = new();
 
             // let test first
-            _componentEngine.CreateButton(400, 400, 0xFFCC7A00); // Create a button with specified width, height, and background color.
+            _componentEngine.CreateButton(100, 400, 0xFFCC7A00); // Create a button with specified width, height, and background color.
         }
 
         protected override void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
