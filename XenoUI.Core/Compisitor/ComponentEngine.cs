@@ -68,6 +68,25 @@ public class ComponentEngine
         // Return the ID of the created button layout for further reference
         return buttonLayoutId;
     }
+    
+    /// <summary>
+    /// Adds a child entity to a parent entity within the layout system, establishing a hierarchical
+    /// relationship between them. The child is appended as the last child of the specified parent.
+    /// </summary>
+    /// <param name="parentId">
+    /// The unique identifier of the parent entity to which the child entity will be attached.
+    /// </param>
+    /// <param name="childId">
+    /// The unique identifier of the child entity that will be added to the specified parent.
+    /// </param>
+    /// <returns>
+    /// Returns the identifier of the parent entity after the child has been added.
+    /// </returns>
+    public int AddChild(int parentId, int childId)
+    {
+        LayoutSystem.RegisterChild(parentId, childId);
+        return parentId; // return parent for
+    }
 
     /// <summary>
     /// Updates the UI component engine by applying styles, calculating layouts, and harvesting layout results.

@@ -63,6 +63,24 @@ public class LayoutSystem
     }
 
     /// <summary>
+    /// Registers a child entity to a parent entity within the layout system, establishing
+    /// a hierarchical relationship between the two entities. The child will be appended
+    /// as the last child of the specified parent.
+    /// </summary>
+    /// <param name="parentId">
+    /// The unique identifier of the parent entity to which the child entity will be attached.
+    /// </param>
+    /// <param name="childId">
+    /// The unique identifier of the child entity that will be registered and attached to the specified parent entity.
+    /// </param>
+    public void RegisterChild(int parentId, int childId)
+    {
+        var parentNode = _nodes[parentId];
+        var childNode = _nodes[childId];
+        parentNode.InsertChild(childNode,parentNode.GetChildCount());
+    }
+
+    /// <summary>
     /// Applies style properties to layout nodes based on the styling data from the provided UI cache memory.
     /// Each UI entity's style is extracted and mapped to its corresponding layout node, updating attributes such as width and height.
     /// </summary>

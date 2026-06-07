@@ -12,4 +12,11 @@ public class XenoEngine
         XenoUICacheMemory = new XenoUICacheMemory();
         LayoutSystem = new LayoutSystem();
     }
+
+
+
+    public void Dispose()
+    {
+        XenoUICacheMemory.Dispose();
+    }
 }

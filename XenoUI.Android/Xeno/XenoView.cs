@@ -15,7 +15,24 @@ namespace XenoUI.Android.Xeno
             _componentEngine = new();
 
             // let test first
-            _componentEngine.CreateButton(100, 400, 0xFFCC7A00); // Create a button with specified width, height, and background color.
+           // _componentEngine.CreateButton(100, 400, 0xFFCC7A00); // Create a button with specified width, height, and background color.
+           
+           
+           int root = Compose.Column(_componentEngine, 10); // Create a column layout with a gap of 10 units between elements.
+           
+           // 2. Set Padding on the root via the Slab
+           ref var style = ref _componentEngine.UiCacheMemory.Styles.Get(root);
+           style.PaddingLeft = 50;
+           style.PaddingTop = 100;
+
+           // 3. Add Children (Boxes)
+           int box1 = Compose.Box(_componentEngine, 200, 100, 0xFFFF0000); // Red
+           int box2 = Compose.Box(_componentEngine, 200, 100, 0xFF00FF00); // Green
+           int box3 = Compose.Box(_componentEngine, 200, 100, 0xFF0000FF); // Blue
+
+           _componentEngine.AddChild(root, box1);
+           _componentEngine.AddChild(root, box2);
+           _componentEngine.AddChild(root, box3);
         }
 
         protected override void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
