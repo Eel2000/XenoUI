@@ -1,8 +1,15 @@
 using Facebook.Yoga;
+using XenoUI.Core.Components.Enums;
 using XenoUI.Core.Doddb;
 
 namespace XenoUI.Core.Pillars;
 
+/// <summary>
+/// Represents a layout management system designed to handle the hierarchical arrangement
+/// and visual layout calculations for UI entities within a user interface framework.
+/// Provides functionality for entity registration, style application, layout calculation,
+/// and result harvesting.
+/// </summary>
 public class LayoutSystem
 {
     /// <summary>
@@ -77,7 +84,33 @@ public class LayoutSystem
             YGNodeStyleAPI.YGNodeStyleSetWidth(node, style.Width);
             YGNodeStyleAPI.YGNodeStyleSetHeight(node, style.Height);
             
-            // We can add more later (Padding, Margin, FlexDirection)
+            //layout direction
+            var layoutType = style.LayoutDirection == LayoutDirection.Horizontal ?
+                YGFlexDirection.Row : 
+                YGFlexDirection.Column;
+            YGNodeStyleAPI.YGNodeStyleSetFlexDirection(node, layoutType);
+            
+            //Gap between children, we need to determine if it's a row or column layout to set the correct gap type
+            // Yoga's gutter = gap between children, and it has different types for row and column layouts
+            var calculatedGutter = layoutType == YGFlexDirection.Row ? YGGutter.Row : YGGutter.Column;
+            YGNodeStyleAPI.YGNodeStyleSetGap(node,calculatedGutter, style.Gap);
+            
+            // Set paddings
+            YGNodeStyleAPI.YGNodeStyleSetPadding(node, YGEdge.Left, style.PaddingLeft);
+            YGNodeStyleAPI.YGNodeStyleSetPadding(node, YGEdge.Top, style.PaddingTop);
+            YGNodeStyleAPI.YGNodeStyleSetPadding(node, YGEdge.Right, style.PaddingRight);
+            YGNodeStyleAPI.YGNodeStyleSetPadding(node, YGEdge.Bottom, style.PaddingBottom);
+            
+            // Set margins
+            YGNodeStyleAPI.YGNodeStyleSetMargin(node, YGEdge.Left, style.MarginLeft);
+            YGNodeStyleAPI.YGNodeStyleSetMargin(node, YGEdge.Top, style.MarginTop);
+            YGNodeStyleAPI.YGNodeStyleSetMargin(node, YGEdge.Right, style.MarginRight);
+            YGNodeStyleAPI.YGNodeStyleSetMargin(node, YGEdge.Bottom, style.MarginBottom);
+            
+            // center everything if the flag is set
+            // NOTE: IMPORTANT! in the first time center everything but in the future we need to make it more flexible
+            // and allow users to specify how they want to align their children , we will add properties for alignment in the style component and map them to Yoga properties
+            YGNodeStyleAPI.YGNodeStyleSetAlignItems(node,YGAlign.Center);
         }
     }
 

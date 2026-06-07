@@ -12,6 +12,7 @@
       Enables trim analyzers and full trimming during Release mode.
       To learn more, see: https://learn.microsoft.com/dotnet/core/deploying/trimming/trimming-options#trimming-granularity
     -->
+    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     <TrimMode>full</TrimMode>
   </PropertyGroup>
   <ItemGroup>

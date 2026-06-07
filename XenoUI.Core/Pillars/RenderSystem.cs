@@ -3,6 +3,15 @@ using XenoUI.Core.Doddb;
 
 namespace XenoUI.Core.Pillars
 {
+    /// <summary>
+    /// The <c>RenderSystem</c> class is responsible for rendering user interface (UI) elements on a canvas.
+    /// It processes visual and transform data from a UI cache memory to draw elements efficiently using SkiaSharp.
+    /// </summary>
+    /// <remarks>
+    /// This rendering system operates at the core of the UI framework, processing cached data to output the visual
+    /// representation of the UI. It supports features such as drawing rounded or rectangular shapes with specified
+    /// dimensions and colors.
+    /// </remarks>
     public class RenderSystem
     {
         // Create a shared SKPaint instance to be used for rendering UI elements.
@@ -15,9 +24,14 @@ namespace XenoUI.Core.Pillars
             Style = SKPaintStyle.Fill
         };
 
+        /// <summary>
+        /// Renders UI elements onto the provided canvas based on the cached data in the specified memory slab.
+        /// </summary>
+        /// <param name="canvas">The SKCanvas instance where the UI elements will be drawn.</param>
+        /// <param name="cacheMemory">The XenoUICacheMemory instance containing precomputed visual, style, and transform data for rendering.</param>
         public void Draw(SKCanvas canvas, XenoUICacheMemory cacheMemory)
         {
-            for(int elementIndex = 0; elementIndex < cacheMemory.EntityCount; elementIndex++)
+            for (int elementIndex = 0; elementIndex < cacheMemory.EntityCount; elementIndex++)
             {
                 // Retrieve the style, visual, and transform components for the current UI element from the cache memory.
 
