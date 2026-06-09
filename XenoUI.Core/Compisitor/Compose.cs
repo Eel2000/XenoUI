@@ -15,11 +15,12 @@ public static class Compose
     /// <param name="engine">The ComponentEngine instance used to manage and cache the created entity.</param>
     /// <param name="type">The layout direction to be applied to the created entity.</param>
     /// <returns>An integer identifier for the created entity within the engine's cache.</returns>
-    private static int CreateBase(ComponentEngine engine, LayoutDirection type)
+    private static int CreateBase(XenoEngine engine, LayoutDirection type)
     {
         var style = new StyleComponent { LayoutDirection = type };
         var visual = new VisualComponent{ Color = 0xFF000000, CornerRadius = 0 };
-        return engine.UiCacheMemory.CreateEntity(style, visual);
+
+        return engine.CreateEntity(style, visual);
     }
 
     /// <summary>
@@ -30,7 +31,7 @@ public static class Compose
     /// <param name="height">The height of the box in logical units.</param>
     /// <param name="backgroundColor">The background color of the box, represented as a 32-bit unsigned integer.</param>
     /// <returns>An integer identifier for the created box entity within the engine's cache.</returns>
-    public static int Box(ComponentEngine engine, float width, float height, uint backgroundColor)
+    public static int Box(XenoEngine engine, float width, float height, uint backgroundColor)
     {
         var style = new StyleComponent
         {
@@ -43,32 +44,54 @@ public static class Compose
             Color = backgroundColor
         };
         
-        return engine.UiCacheMemory.CreateEntity(style, visual);
+        return engine.CreateEntity(style, visual);
     }
 
     /// <summary>
-    /// Creates a vertical layout column with the specified gap between elements in the XenoUI framework.
+    /// Creates a vertical layout column with a specified gap and automatically wires up nested child entities.
     /// </summary>
-    /// <param name="engine">The ComponentEngine instance used to create and manage the column layout.</param>
+    /// <param name="engine">The XenoEngine instance used to create and manage the column layout.</param>
     /// <param name="gap">The spacing between elements within the column layout.</param>
+    /// <param name="children">The child entity IDs to be contained inside this column layout container.</param>
     /// <returns>An integer identifier for the created column layout within the engine's cache.</returns>
-    public static int Column(ComponentEngine engine, float gap)
+    public static int Column(XenoEngine engine, float gap, params int[] children)
     {
         var stackId = CreateBase(engine, LayoutDirection.Vertical);
-        engine.UiCacheMemory.Styles.Get(stackId).Gap = gap;
+
+        // Using the 'ref' keyword assignment to prevent mutating an isolated struct copy
+        ref var style = ref engine.XenoUICacheMemory.Styles.Get(stackId);
+        style.Gap = gap;
+
+        // Automatically map children relationships down into the database and layout trees
+        foreach (var childId in children)
+        {
+            engine.AddChild(stackId, childId);
+        }
+
         return stackId;
     }
 
     /// <summary>
-    /// Creates a horizontal row container within the XenoUI framework using the specified gap setting.
+    /// Creates a horizontal row container with a specified gap and automatically wires up nested child entities.
     /// </summary>
-    /// <param name="engine">The ComponentEngine instance used to manage and cache the created row container.</param>
+    /// <param name="engine">The XenoEngine instance used to manage and cache the created row container.</param>
     /// <param name="gap">The spacing applied between child elements within the row container.</param>
+    /// <param name="children">The child entity IDs to be contained inside this row layout container.</param>
     /// <returns>An integer identifier representing the created row container in the engine's cache.</returns>
-    public static int Row(ComponentEngine engine, float gap)
+    public static int Row(XenoEngine engine, float gap, params int[] children)
     {
         var stackId = CreateBase(engine, LayoutDirection.Horizontal);
-        engine.UiCacheMemory.Styles.Get(stackId).Gap = gap;
+
+        // using the 'ref' keyword assignment to prevent mutating an isolated struct copy
+        ref var style = ref engine.XenoUICacheMemory.Styles.Get(stackId);
+        style.Gap = gap;
+
+        // Automatically map children relationships down into the database and layout trees
+        foreach (var childId in children)
+        {
+            engine.AddChild(stackId, childId);
+        }
+
         return stackId;
     }
 }

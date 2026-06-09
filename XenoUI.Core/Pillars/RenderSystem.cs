@@ -1,70 +1,87 @@
 ﻿using SkiaSharp;
 using XenoUI.Core.Doddb;
 
-namespace XenoUI.Core.Pillars
+namespace XenoUI.Core.Pillars;
+
+/// <summary>
+/// The <c>RenderSystem</c> class is responsible for rendering user interface (UI) elements on a canvas.
+/// It processes visual and transform data from a UI cache memory to draw elements efficiently using SkiaSharp.
+/// </summary>
+/// <remarks>
+/// This rendering system operates at the core of the UI framework, processing cached data to output the visual
+/// representation of the UI. It supports features such as drawing rounded or rectangular shapes with specified
+/// dimensions and colors.
+/// </remarks>
+public class RenderSystem
 {
     /// <summary>
-    /// The <c>RenderSystem</c> class is responsible for rendering user interface (UI) elements on a canvas.
-    /// It processes visual and transform data from a UI cache memory to draw elements efficiently using SkiaSharp.
+    /// A paint cache organized by color hex key. This eliminates allocations inside the render loop
+    /// while ensuring distinct UI elements don't corrupt each other's styling states.
     /// </summary>
-    /// <remarks>
-    /// This rendering system operates at the core of the UI framework, processing cached data to output the visual
-    /// representation of the UI. It supports features such as drawing rounded or rectangular shapes with specified
-    /// dimensions and colors.
-    /// </remarks>
-    public class RenderSystem
+    private readonly Dictionary<uint, SKPaint> _paintCache = new();
+
+    /// <summary>
+    /// Renders UI elements onto the provided canvas based on the cached data in the specified memory slab.
+    /// </summary>
+    /// <param name="canvas">The SKCanvas instance where the UI elements will be drawn.</param>
+    /// <param name="cacheMemory">The XenoUICacheMemory instance containing precomputed visual, style, and transform data for rendering.</param>
+    /// <param name="density">The screen density factor, used to convert layout units to physical pixels.</param>
+    public void Render(SKCanvas canvas, XenoUICacheMemory cacheMemory, float density)
     {
-        // Create a shared SKPaint instance to be used for rendering UI elements.
-        // This instance is configured with anti-aliasing enabled and set to fill style,
-        // which allows for smooth and visually appealing rendering of shapes and backgrounds in the UI.
-        // IMPORTANT: This shared SKPaint instance should be used for all rendering operations to ensure consistency and performance across the UI rendering process.
-        private readonly SKPaint _sharePaint = new()
+        for (int elementIndex = 0; elementIndex < cacheMemory.EntityCount; elementIndex++)
         {
-            IsAntialias = true,
-            Style = SKPaintStyle.Fill
-        };
+            // Retrieve the style, visual, and transform components for the current UI element from the cache memory.
+            ref var transform = ref cacheMemory.Transforms.Get(elementIndex);
+            ref var visual = ref cacheMemory.Visuals.Get(elementIndex);
 
-        /// <summary>
-        /// Renders UI elements onto the provided canvas based on the cached data in the specified memory slab.
-        /// </summary>
-        /// <param name="canvas">The SKCanvas instance where the UI elements will be drawn.</param>
-        /// <param name="cacheMemory">The XenoUICacheMemory instance containing precomputed visual, style, and transform data for rendering.</param>
-        public void Draw(SKCanvas canvas, XenoUICacheMemory cacheMemory)
-        {
-            for (int elementIndex = 0; elementIndex < cacheMemory.EntityCount; elementIndex++)
-            {
-                // Retrieve the style, visual, and transform components for the current UI element from the cache memory.
-
-                // get the transform component for the current element index from the cache memory's transform slab.
-                ref var transform = ref cacheMemory.Transforms.Get(elementIndex);
-
-                // get the visual component for the current element index from the cache memory's Visuals slab.
-                ref var visual = ref cacheMemory.Visuals.Get(elementIndex);
-
-                // Set the color of the shared SKPaint instance to the color specified in the visual component.
-                _sharePaint.Color = new SKColor(visual.Color);
-
-                // Create a new SKRect using the position and size specified in the transform component.
-                var rect = new SKRect(
-                    transform.X,
-                    transform.Y,
-                    transform.X + transform.Width,
-                    transform.Y + transform.Height
-                );
+            // Fetch a distinct, safely isolated paint instance for this specific color
+            var paint = GetPaintForColor(visual.Color);
 
 
-                // Draw a filled rectangle on the canvas using the defined SKRect and the shared SKPaint instance.
-                if(visual.CornerRadius > 0)
-                {
-                    // If the visual component has a corner radius greater than 0, draw a rounded rectangle using the shared SKPaint instance.
-                    canvas.DrawRoundRect(rect, visual.CornerRadius, visual.CornerRadius, _sharePaint);
-                }
-                else
-                {
-                    // If there is no corner radius, draw a regular filled rectangle using the shared SKPaint instance.
-                    canvas.DrawRect(rect, _sharePaint);
-                }
-            }
+            // MULTIPLY BY DENSITY TO CONVERT DP BACK TO PHYSICAL PIXELS FOR THE CANVAS
+            var rect = new SKRect(
+                transform.X * density,
+                transform.Y * density,
+                (transform.X + transform.Width) * density,
+                (transform.Y + transform.Height) * density
+            );
+
+            float physicalRadius = visual.CornerRadius * density;
+
+            if (physicalRadius > 0)
+                canvas.DrawRoundRect(rect, physicalRadius, physicalRadius, paint);
+            else
+                canvas.DrawRect(rect, paint);
         }
+    }
+
+    /// <summary>
+    /// Retrieves a cached SKPaint instance for the given color, creating it if it doesn't exist.
+    /// </summary>
+    private SKPaint GetPaintForColor(uint colorHex)
+    {
+        if (!_paintCache.TryGetValue(colorHex, out var paint))
+        {
+            paint = new SKPaint
+            {
+                IsAntialias = true,
+                Style = SKPaintStyle.Fill,
+                Color = new SKColor(colorHex)
+            };
+            _paintCache[colorHex] = paint;
+        }
+        return paint;
+    }
+
+    /// <summary>
+    /// Completely disposes all cached paints to prevent native C++ Skia memory leaks on mobile devices.
+    /// </summary>
+    public void ClearCache()
+    {
+        foreach (var paint in _paintCache.Values)
+        {
+            paint.Dispose();
+        }
+        _paintCache.Clear();
     }
 }

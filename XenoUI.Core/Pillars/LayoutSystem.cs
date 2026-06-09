@@ -13,11 +13,10 @@ namespace XenoUI.Core.Pillars;
 public class LayoutSystem
 {
     /// <summary>
-    /// Represents a collection of layout nodes managed by the layout system.
-    /// This list is used to store and organize nodes that participate in the
-    /// layout calculations, enabling structured management and rendering of the UI elements.
+    /// Represents a collection of layout nodes managed by the layout system,
+    /// explicitly mapped by their unique Entity ID.
     /// </summary>
-    private readonly List<Node> _nodes = new();
+    private readonly Dictionary<int, Node> _nodes = new();
 
     /// <summary>
     /// Serves as the primary node in the layout system hierarchy.
@@ -33,32 +32,23 @@ public class LayoutSystem
     }
 
     /// <summary>
-    /// Registers an entity in the layout system by creating a new node for it and
-    /// attaching it to the specified parent node or to the root node if no parent is specified.
+    /// Registers an entity in the layout system by creating a new node for it.
+    /// Hierarchy is established later via RegisterChild due to bottom-up execution.
     /// </summary>
     /// <param name="entityId">
     /// The unique identifier for the entity to be registered.
     /// </param>
     /// <param name="parentEntityId">
     /// The unique identifier for the parent entity to which the new entity will be attached.
-    /// If null, the entity will be attached to the root node.
     /// </param>
     public void RegisterEntity(int entityId, int? parentEntityId = null)
     {
-        // Creates a new node for the entity and adds it to the list of nodes in the layout system.
         var newNode = new Node();
-        _nodes.Add(newNode);
-        
-        if(parentEntityId.HasValue)
+        _nodes[entityId] = newNode;
+
+        if (parentEntityId.HasValue)
         {
-            //if a parent is specified, the node is added to the parent's child list'
-            var parentNode = _nodes[parentEntityId.Value];
-            parentNode.InsertChild(newNode,parentNode.GetChildCount());
-        }
-        else
-        {
-            //if no parent is specified, the node is added to the root
-            _rootNode.InsertChild(newNode,_rootNode.GetChildCount());
+            RegisterChild(parentEntityId.Value, entityId);
         }
     }
 
@@ -75,9 +65,16 @@ public class LayoutSystem
     /// </param>
     public void RegisterChild(int parentId, int childId)
     {
-        var parentNode = _nodes[parentId];
-        var childNode = _nodes[childId];
-        parentNode.InsertChild(childNode,parentNode.GetChildCount());
+        if (_nodes.TryGetValue(parentId, out var parentNode) &&
+            _nodes.TryGetValue(childId, out var childNode))
+        {
+            // If the child was previously attached to the root node during 
+            // initialization, we must disconnect it before nesting it.
+            // (Safe protection for bottom-up compilation engines)
+            _rootNode.RemoveChild(childNode);
+
+            parentNode.InsertChild(childNode, parentNode.GetChildCount());
+        }
     }
 
     /// <summary>
@@ -92,43 +89,56 @@ public class LayoutSystem
     {
         for (var index = 0; index < uiCacheMemory.EntityCount; index++)
         {
-            //get the style component for the entity and the corresponding node in the layout system
-            var node = _nodes[index];
-            
-            //get the style component for the entity
+            // Ensure the node exists before modifying it
+            if (!_nodes.TryGetValue(index, out var node)) continue;
+
+            // Get the style component for the entity
             ref var style = ref uiCacheMemory.Styles.Get(index);
-            
-            //map our slab values to Yoga properties
+
+            // Map our slab values to Yoga properties
             YGNodeStyleAPI.YGNodeStyleSetWidth(node, style.Width);
             YGNodeStyleAPI.YGNodeStyleSetHeight(node, style.Height);
-            
-            //layout direction
+
+            // Layout direction
             var layoutType = style.LayoutDirection == LayoutDirection.Horizontal ?
-                YGFlexDirection.Row : 
+                YGFlexDirection.Row :
                 YGFlexDirection.Column;
             YGNodeStyleAPI.YGNodeStyleSetFlexDirection(node, layoutType);
-            
-            //Gap between children, we need to determine if it's a row or column layout to set the correct gap type
-            // Yoga's gutter = gap between children, and it has different types for row and column layouts
+
+            // Gap between children
             var calculatedGutter = layoutType == YGFlexDirection.Row ? YGGutter.Row : YGGutter.Column;
-            YGNodeStyleAPI.YGNodeStyleSetGap(node,calculatedGutter, style.Gap);
-            
+            YGNodeStyleAPI.YGNodeStyleSetGap(node, calculatedGutter, style.Gap);
+
             // Set paddings
             YGNodeStyleAPI.YGNodeStyleSetPadding(node, YGEdge.Left, style.PaddingLeft);
             YGNodeStyleAPI.YGNodeStyleSetPadding(node, YGEdge.Top, style.PaddingTop);
             YGNodeStyleAPI.YGNodeStyleSetPadding(node, YGEdge.Right, style.PaddingRight);
             YGNodeStyleAPI.YGNodeStyleSetPadding(node, YGEdge.Bottom, style.PaddingBottom);
-            
+
             // Set margins
             YGNodeStyleAPI.YGNodeStyleSetMargin(node, YGEdge.Left, style.MarginLeft);
             YGNodeStyleAPI.YGNodeStyleSetMargin(node, YGEdge.Top, style.MarginTop);
             YGNodeStyleAPI.YGNodeStyleSetMargin(node, YGEdge.Right, style.MarginRight);
             YGNodeStyleAPI.YGNodeStyleSetMargin(node, YGEdge.Bottom, style.MarginBottom);
-            
-            // center everything if the flag is set
-            // NOTE: IMPORTANT! in the first time center everything but in the future we need to make it more flexible
-            // and allow users to specify how they want to align their children , we will add properties for alignment in the style component and map them to Yoga properties
-            YGNodeStyleAPI.YGNodeStyleSetAlignItems(node,YGAlign.Center);
+
+            // Allow nodes to grow if configured (Crucial for Scaffold/Fill layout behaviors)
+            YGNodeStyleAPI.YGNodeStyleSetFlexGrow(node, 1.0f);// Default to allowing all nodes to grow, but this can be adjusted based on specific style properties if needed.
+
+            // Center alignment rule
+            YGNodeStyleAPI.YGNodeStyleSetAlignItems(node, YGAlign.Center);
+        }
+    }
+
+    /// <summary>
+    /// Attaches the final top-level layout element of the active page directly to the Root node.
+    /// </summary>
+    public void SetRootPageEntity(int rootPageEntityId)
+    {
+        if (_nodes.TryGetValue(rootPageEntityId, out var rootPageNode))
+        {
+            // Clear any old page roots left in the root node
+            _rootNode.Reset();
+            _rootNode.InsertChild(rootPageNode, 0);
         }
     }
 
@@ -142,10 +152,21 @@ public class LayoutSystem
     /// <param name="screenHeight">
     /// The height of the screen or container, used as the basis for layout calculations.
     /// </param>
-    public void CalculateLayout(float screenWidth, float screenHeight)
+    /// <param name="density">
+    /// The screen density factor, used to convert layout units to physical pixels.
+    /// </param>
+    public void CalculateLayout(float screenWidth, float screenHeight, float density)
     {
-        // Calculate the layout for the root node, which will recursively calculate the layout for all child nodes.
-        YGNodeAPI.YGNodeCalculateLayout(_rootNode, screenWidth, screenHeight, YGDirection.LTR);
+        // Convert incoming physical window dimensions to DP values for Yoga's calculation tree
+        float dpWidth = screenWidth / density;
+        float dpHeight = screenHeight / density;
+
+        // Force the root container to match the exact physical glass size of the phone
+        YGNodeStyleAPI.YGNodeStyleSetWidth(_rootNode, dpWidth);
+        YGNodeStyleAPI.YGNodeStyleSetHeight(_rootNode, dpHeight);
+
+        // Calculate the layout properties recursively down the entire tree
+        YGNodeAPI.YGNodeCalculateLayout(_rootNode, dpWidth, dpHeight, YGDirection.LTR);
     }
 
     /// <summary>
@@ -154,26 +175,31 @@ public class LayoutSystem
     /// in the given UI cache memory.
     /// </summary>
     /// <param name="uiCacheMemory">
-    /// The UI cache memory containing the transform components to be updated. Each transform
-    /// component will be modified to reflect the calculated layout properties (X, Y, Width, Height)
-    /// based on the layout system's computed results for each entity.
+    /// The UI cache memory containing the transform components to be updated.
     /// </param>
     public void HarvestResults(XenoUICacheMemory uiCacheMemory)
     {
         for (var index = 0; index < uiCacheMemory.EntityCount; index++)
         {
-            var node = _nodes[index];
-            
+            if (!_nodes.TryGetValue(index, out var node)) continue;
+
             ref var transform = ref uiCacheMemory.Transforms.Get(index);
-             
-            var width = YGNodeStyleAPI.YGNodeStyleGetHeight(node);
-            var height = YGNodeStyleAPI.YGNodeStyleGetWidth(node);
 
-            transform.Width = width.Value;
-            transform.Height = height.Value;
-
+            // FIXED: Harvest the actual calculated LAYOUT metrics instead of the input STYLES
+            transform.Width = YGNodeLayoutAPI.YGNodeLayoutGetWidth(node);
+            transform.Height = YGNodeLayoutAPI.YGNodeLayoutGetHeight(node);
             transform.X = YGNodeLayoutAPI.YGNodeLayoutGetLeft(node);
             transform.Y = YGNodeLayoutAPI.YGNodeLayoutGetTop(node);
         }
+    }
+
+    /// <summary>
+    /// Completely flushes the layout nodes tree. Called during page transitions 
+    /// to prevent memory footprint leaks.
+    /// </summary>
+    public void Clear()
+    {
+        _nodes.Clear();
+        _rootNode.Reset();
     }
 }

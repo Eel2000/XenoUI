@@ -67,9 +67,7 @@ public unsafe class XenoSlab<T> : IDisposable where T : unmanaged
         if (_count >= _capacity) Resize();
 
         _buffer[_count] = value;
-        var c = _count++;
-
-        return c;
+        return _count++;
     }
 
     /// <summary>
