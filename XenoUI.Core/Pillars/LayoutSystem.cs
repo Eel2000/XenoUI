@@ -186,10 +186,16 @@ public class LayoutSystem
             ref var transform = ref uiCacheMemory.Transforms.Get(index);
 
             // FIXED: Harvest the actual calculated LAYOUT metrics instead of the input STYLES
-            transform.Width = YGNodeLayoutAPI.YGNodeLayoutGetWidth(node);
-            transform.Height = YGNodeLayoutAPI.YGNodeLayoutGetHeight(node);
-            transform.X = YGNodeLayoutAPI.YGNodeLayoutGetLeft(node);
-            transform.Y = YGNodeLayoutAPI.YGNodeLayoutGetTop(node);
+            var w = YGNodeStyleAPI.YGNodeStyleGetWidth(node);
+            var h = YGNodeStyleAPI.YGNodeStyleGetHeight(node);
+
+            var layoutX = YGNodeLayoutAPI.YGNodeLayoutGetLeft(node);
+            var layoutY = YGNodeLayoutAPI.YGNodeLayoutGetTop(node);
+
+            transform.Width = w.Value;
+            transform.Height = h.Value;
+            transform.X = layoutX;
+            transform.Y = layoutY;
         }
     }
 
