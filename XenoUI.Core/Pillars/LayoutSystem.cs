@@ -189,6 +189,7 @@ public class LayoutSystem
             var w = YGNodeStyleAPI.YGNodeStyleGetWidth(node);
             var h = YGNodeStyleAPI.YGNodeStyleGetHeight(node);
 
+            // TODO: need to get the calculated possition
             var layoutX = YGNodeLayoutAPI.YGNodeLayoutGetLeft(node);
             var layoutY = YGNodeLayoutAPI.YGNodeLayoutGetTop(node);
 
