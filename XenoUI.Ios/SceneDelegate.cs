@@ -1,3 +1,5 @@
+using XenoUI.Ios.Xeno;
+
 namespace XenoUI.Ios
 {
     [Register("SceneDelegate")]
@@ -16,18 +18,14 @@ namespace XenoUI.Ios
             if (scene is UIWindowScene windowScene)
             {
                 Window ??= new UIWindow(windowScene);
-
-                // Create a 'UIViewController' with a single 'UILabel'
-                var vc = new UIViewController();
-                vc.View!.AddSubview(new UILabel(Window!.Frame)
-                {
-                    BackgroundColor = UIColor.SystemBackground,
-                    TextAlignment = UITextAlignment.Center,
-                    Text = "Hello, iOS!",
-                    AutoresizingMask = UIViewAutoresizing.All,
-                });
-
-                Window.RootViewController = vc;
+                
+                // Create our XenoView
+                var xv = new XenoView();
+                // xv.View.Frame = Window.Frame;
+                // xv.View.AutoresizingMask = UIViewAutoresizing.All;
+                
+                
+                Window.RootViewController = xv;
                 Window.MakeKeyAndVisible();
             }
         }
